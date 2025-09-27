@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import Sidebar from '../components/sidebar'
+import Sidebar from '../components/Sidebar'
 import { Outlet } from 'react-router-dom'
 import {Flashlight, Menu, X} from 'lucide-react'
 import { dummyUserData } from '../assets/assets/assets'
