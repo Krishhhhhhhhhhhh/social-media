@@ -2,17 +2,36 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import connectDB from './configs/db.js';
-import {inngest,functions} from './inngest/index.js'
+import { Inngest } from 'inngest';
 
-const app=express();
+const app = express();
 await connectDB();
 
+// Create Inngest client
+const inngest = new Inngest({
+     name: 'My App',
+      id: process.env.INNGEST_EVENT_KEY,  
+       signingSecret: process.env.INNGEST_SIGNING_KEY 
+    
+    });
+
+// Define your functions here (empty array for now)
+const functions = [];
+
+// Middleware
 app.use(express.json());
 app.use(cors());
-app.use('/api/ingest',serve({client:inngest,functions }))
 
- 
+// Route to handle Inngest events
+app.post('/api/ingest', async (req, res) => {
+  try {
+    await inngest.handle(req.body, functions);
+    res.status(200).send('Event received');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error processing event');
+  }
+});
 
-const PORT =process.env.PORT || 4000;
-
-app.listen(PORT,()=>console.log(`Server is running ${PORT}`)) 
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
