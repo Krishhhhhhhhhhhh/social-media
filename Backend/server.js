@@ -3,6 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import connectDB from './configs/db.js';
 import { Inngest } from 'inngest';
+import { serve } from "inngest/express";
 
 const app = express();
 await connectDB();
@@ -14,6 +15,9 @@ const inngest = new Inngest({
        signingSecret: process.env.INNGEST_SIGNING_KEY 
     
     });
+
+//inggest endpoint added here 
+app.use("/api/inngest", serve(inngest, []));
 
 // Define your functions here (empty array for now)
 const functions = [];
