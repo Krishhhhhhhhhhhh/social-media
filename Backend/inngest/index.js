@@ -5,7 +5,6 @@ import { User } from "../Models/user.js";
 export const inngest = new Inngest({ id: "pingup-app" });
 
 
-
 // Inngest function to save user data to a database
 const syncUserCreation= inngest.createFunction(
     {id:'sync-user-from-clerk'},
