@@ -33,11 +33,7 @@ const userSchema = new mongoose.Schema({
         ref:'User'
 
     }],
-    followers:[{
-        type:String,
-        ref:'User'
-
-    }],
+    
     connections:[{
         type:String,
         ref:'User'
@@ -47,4 +43,4 @@ const userSchema = new mongoose.Schema({
     
     },{timestamps:true,minimize:false});
 
-export                                                                                                const User=mongoose.model('User',userSchema);
+export  const User=mongoose.model('User',userSchema);
