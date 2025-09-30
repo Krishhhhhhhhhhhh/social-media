@@ -17,7 +17,7 @@ const inngest = new Inngest({
     });
 
 //inggest endpoint added here 
-app.use("/api/inngest", serve(inngest, []));
+app.use("/api/inngest", serve({client:inngest,functions: []}));
 
 // Define your functions here (empty array for now)
 const functions = [];
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cors());
 
 // Route to handle Inngest events
-app.post('/api/ingest', async (req, res) => {
+app.post('/api/inngest', async (req, res) => {
   try {
     await inngest.handle(req.body, functions);
     res.status(200).send('Event received');
