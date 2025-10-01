@@ -2,9 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import connectDB from './configs/db.js';
-import { Inngest } from 'inngest';
+import { inngest,functions } from '.inngest/index.js';
 import { serve } from "inngest/express";
 
+ 
 const app = express();
 await connectDB();
 
@@ -25,6 +26,8 @@ const functions = [];
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+app.use('/api/inngest',serve({client:inngest,functions}))
 
 // Route to handle Inngest events
 app.post('/api/inngest', async (req, res) => {
