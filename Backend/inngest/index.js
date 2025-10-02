@@ -50,21 +50,38 @@ const syncUserUpdation = inngest.createFunction(
   { event: "clerk/user.updated" },
   async ({ event }) => {
     try {
-      const { id, first_name = "", last_name = "", email_addresses = [], image_url = "" } = event.data;
-      const email = email_addresses[0]?.email_address || "";
+      const { id, first_name = "New", last_name = "User", email_addresses = [], image_url = "" } = event.data;
+      const email = email_addresses[0]?.email_address || `user${Date.now()}@example.com`;
+      const full_name = `${first_name} ${last_name}`.trim();
+      const username = email.split("@")[0];
 
-      await User.findByIdAndUpdate(id, {
-        email,
-        full_name: `${first_name} ${last_name}`.trim(),
-        profile_picture: image_url,
-      });
+      // Find existing user
+      let user = await User.findById(id);
 
-      console.log("User updated:", id);
+      if (!user) {
+        // Create new user if it doesn't exist
+        user = await User.create({
+          _id: id,
+          email,
+          full_name,
+          profile_picture: image_url,
+          username,
+        });
+        console.log("User created on update:", id);
+      } else {
+        // Update existing user
+        user.email = email;
+        user.full_name = full_name;
+        user.profile_picture = image_url;
+        await user.save();
+        console.log("User updated:", id);
+      }
     } catch (err) {
       console.error("Error in syncUserUpdation:", err);
     }
   }
 );
+
 
 // -----------------------
 // Function: Delete User
