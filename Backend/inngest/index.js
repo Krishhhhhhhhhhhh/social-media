@@ -1,5 +1,5 @@
 import { Inngest } from "inngest";
-import { User } from "../Models/User.js"; // ✅ add .js extension for ES modules
+import { User } from "../Models/User.js";
 
 // Create a single Inngest client
 export const inngest = new Inngest({
@@ -7,7 +7,9 @@ export const inngest = new Inngest({
   name: "PingUp App",
 });
 
-// Function: Sync new Clerk user to MongoDB
+// -----------------------
+// Function: New User Signup
+// -----------------------
 const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
@@ -22,7 +24,6 @@ const syncUserCreation = inngest.createFunction(
       username = username + Math.floor(Math.random() * 10000);
     }
 
-    // Save user in MongoDB
     await User.create({
       _id: id,
       email: email_addresses[0].email_address,
@@ -30,10 +31,14 @@ const syncUserCreation = inngest.createFunction(
       profile_picture: image_url,
       username,
     });
+
+    console.log("New user created:", id);
   }
 );
 
-// Function: Sync updates from Clerk
+// -----------------------
+// Function: Update User Profile
+// -----------------------
 const syncUserUpdation = inngest.createFunction(
   { id: "update-user-from-clerk" },
   { event: "clerk/user.updated" },
@@ -45,21 +50,69 @@ const syncUserUpdation = inngest.createFunction(
       full_name: `${first_name} ${last_name}`,
       profile_picture: image_url,
     });
+
+    console.log("User updated:", id);
   }
 );
 
-// Function: Delete user if removed in Clerk
+// -----------------------
+// Function: Delete User
+// -----------------------
 const syncUserDeletion = inngest.createFunction(
   { id: "delete-user-with-clerk" },
   { event: "clerk/user.deleted" },
   async ({ event }) => {
     await User.findByIdAndDelete(event.data.id);
+    console.log("User deleted:", event.data.id);
   }
 );
 
-// Export all functions
+// -----------------------
+// Function: Track User Login
+// -----------------------
+const syncUserLogin = inngest.createFunction(
+  { id: "sync-user-login" },
+  { event: "clerk/session.created" },
+  async ({ event }) => {
+    try {
+      const userId = event.data.user_id;
+      console.log("User logged in:", userId);
+
+      let user = await User.findById(userId);
+
+      if (!user) {
+        // Create user if it doesn't exist yet
+        const email = event.data.public_metadata?.email || "";
+        const username = event.data.public_metadata?.username || `user${Date.now()}`;
+        const full_name = event.data.public_metadata?.full_name || "New User";
+
+        user = await User.create({
+          _id: userId,
+          email,
+          username,
+          full_name,
+          lastLogin: new Date(),
+        });
+
+        console.log("New user created on login:", userId);
+      } else {
+        // Update last login timestamp
+        user.lastLogin = new Date();
+        await user.save();
+        console.log("Updated lastLogin for user:", userId);
+      }
+    } catch (err) {
+      console.error("Error in syncUserLogin:", err);
+    }
+  }
+);
+
+// -----------------------
+// Export All Functions
+// -----------------------
 export const functions = [
   syncUserCreation,
   syncUserUpdation,
   syncUserDeletion,
+  syncUserLogin,
 ];

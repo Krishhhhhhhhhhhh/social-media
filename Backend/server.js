@@ -20,6 +20,9 @@ app.get("/", (req, res) => {
   res.send("Backend API is running 🚀");
 });
 
+
+
+
 // Prevent favicon errors
 app.get("/favicon.ico", (req, res) => res.status(204));
 
