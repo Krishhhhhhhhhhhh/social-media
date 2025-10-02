@@ -14,25 +14,31 @@ const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event }) => {
-    const { id, first_name, last_name, email_addresses, image_url } = event.data;
+    try {
+      const { id, first_name = "New", last_name = "User", email_addresses = [], image_url = "" } = event.data;
 
-    let username = email_addresses[0].email_address.split("@")[0];
+      // Fallback email if none provided
+      const email = email_addresses[0]?.email_address || `user${Date.now()}@example.com`;
+      let username = email.split("@")[0];
 
-    // Check if username already exists
-    const user = await User.findOne({ username });
-    if (user) {
-      username = username + Math.floor(Math.random() * 10000);
+      // Check if username already exists
+      const userExists = await User.findOne({ username });
+      if (userExists) {
+        username = username + Math.floor(Math.random() * 10000);
+      }
+
+      await User.create({
+        _id: id,
+        email,
+        full_name: `${first_name} ${last_name}`,
+        profile_picture: image_url,
+        username,
+      });
+
+      console.log("New user created:", id);
+    } catch (err) {
+      console.error("Error in syncUserCreation:", err);
     }
-
-    await User.create({
-      _id: id,
-      email: email_addresses[0].email_address,
-      full_name: `${first_name} ${last_name}`,
-      profile_picture: image_url,
-      username,
-    });
-
-    console.log("New user created:", id);
   }
 );
 
@@ -43,15 +49,20 @@ const syncUserUpdation = inngest.createFunction(
   { id: "update-user-from-clerk" },
   { event: "clerk/user.updated" },
   async ({ event }) => {
-    const { id, first_name, last_name, email_addresses, image_url } = event.data;
+    try {
+      const { id, first_name = "", last_name = "", email_addresses = [], image_url = "" } = event.data;
+      const email = email_addresses[0]?.email_address || "";
 
-    await User.findByIdAndUpdate(id, {
-      email: email_addresses[0].email_address,
-      full_name: `${first_name} ${last_name}`,
-      profile_picture: image_url,
-    });
+      await User.findByIdAndUpdate(id, {
+        email,
+        full_name: `${first_name} ${last_name}`.trim(),
+        profile_picture: image_url,
+      });
 
-    console.log("User updated:", id);
+      console.log("User updated:", id);
+    } catch (err) {
+      console.error("Error in syncUserUpdation:", err);
+    }
   }
 );
 
@@ -62,8 +73,12 @@ const syncUserDeletion = inngest.createFunction(
   { id: "delete-user-with-clerk" },
   { event: "clerk/user.deleted" },
   async ({ event }) => {
-    await User.findByIdAndDelete(event.data.id);
-    console.log("User deleted:", event.data.id);
+    try {
+      await User.findByIdAndDelete(event.data.id);
+      console.log("User deleted:", event.data.id);
+    } catch (err) {
+      console.error("Error in syncUserDeletion:", err);
+    }
   }
 );
 
@@ -82,7 +97,7 @@ const syncUserLogin = inngest.createFunction(
 
       if (!user) {
         // Create user if it doesn't exist yet
-        const email = event.data.public_metadata?.email || "";
+        const email = event.data.public_metadata?.email || `user${Date.now()}@example.com`;
         const username = event.data.public_metadata?.username || `user${Date.now()}`;
         const full_name = event.data.public_metadata?.full_name || "New User";
 
