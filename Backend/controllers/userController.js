@@ -1,6 +1,7 @@
-//get user data using userId
 
-import { User } from "../Models/User"
+
+import { User } from "../Models/User.js"
+//get user data using userId
 
 export const getUserData=async(req,res)=>{
     try{
@@ -42,6 +43,8 @@ export const updateUserData=async(req,res)=>{
             location,
             full_name
         }
+        const profile=req.files.profile && req.files.profile[0]
+        const cover=req.files.cover && req.files.cover[0]
     }catch(error){
         console.log(error);
         res.json({success:false,message:error.message})
