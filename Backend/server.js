@@ -4,6 +4,7 @@ import "dotenv/config";
 import connectDB from "./configs/db.js";
 import { inngest, functions } from "./inngest/index.js"; // ✅ import Inngest + functions
 import { serve } from "inngest/express";
+import {clerkMiddleware} from '@clerk/express'
 
 const app = express();
 await connectDB();
@@ -11,6 +12,8 @@ await connectDB();
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(clerkMiddleware())
+
 
 // Inngest endpoint for handling events
 app.use("/api/inngest", serve({ client: inngest, functions }));

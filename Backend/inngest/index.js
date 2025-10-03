@@ -109,6 +109,8 @@ const syncUserLogin = inngest.createFunction(
     try {
       const userId = event.data.user_id;
       console.log("User logged in:", userId);
+    
+      
 
       let user = await User.findById(userId);
 
