@@ -1,6 +1,8 @@
 import { Inngest } from "inngest";
 import { User } from "../Models/User.js";
+import connectDB from "../configs/db.js";
 
+await connectDB();
 // Create a single Inngest client
 export const inngest = new Inngest({
   id: "pingup-app",
