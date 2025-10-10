@@ -3,6 +3,7 @@ import { User } from "../Models/User.js";
 import connectDB from "../configs/db.js";
 
 await connectDB();
+console.log("MongoDB URL check:", process.env.MONGODB_URL ? "✅ Loaded" : "❌ Missing");
 // Create a single Inngest client
 export const inngest = new Inngest({
   id: "pingup-app",
