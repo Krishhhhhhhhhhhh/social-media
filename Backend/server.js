@@ -16,7 +16,9 @@ app.use(clerkMiddleware())
 
 
 // Inngest endpoint for handling events
-app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/inngest", 
+  
+  serve({ client: inngest, functions }));
 
 // Test route
 app.get("/", (req, res) => {

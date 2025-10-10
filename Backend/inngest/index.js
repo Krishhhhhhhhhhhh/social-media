@@ -16,6 +16,7 @@ const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },
   async ({ event }) => {
+
     try {
       const { id, first_name = "New", last_name = "User", email_addresses = [], image_url = "" } = event.data;
 
@@ -108,6 +109,8 @@ const syncUserLogin = inngest.createFunction(
   { id: "sync-user-login" },
   { event: "clerk/session.created" },
   async ({ event }) => {
+    console.log("clerk session created");
+    console.log("Full event daata",event.data);
     try {
       const userId = event.data.user_id;
       console.log("User logged in:", userId);
