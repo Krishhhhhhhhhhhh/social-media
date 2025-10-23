@@ -5,6 +5,7 @@ import connectDB from "./configs/db.js";
 import { inngest, functions } from "./inngest/index.js"; // ✅ import Inngest + functions
 import { serve } from "inngest/express";
 import {clerkMiddleware} from '@clerk/express'
+import userRouter from "./routes/userRoutes.js";
 
 const app = express();
 await connectDB();
@@ -20,10 +21,14 @@ app.use("/api/inngest",
   
   serve({ client: inngest, functions }));
 
+//UserRouter added from routes  
+app.use('/api/user',userRouter)
+
 // Test route
 app.get("/", (req, res) => {
   res.send("Backend API is running 🚀");
 });
+
 
 
 
