@@ -6,6 +6,9 @@ import { inngest, functions } from "./inngest/index.js"; // ✅ import Inngest +
 import { serve } from "inngest/express";
 import {clerkMiddleware} from '@clerk/express'
 import userRouter from "./routes/userRoutes.js";
+import postRouter from "./routes/postRoutes.js";
+import storyRouter from "./routes/storyRoutes.js";
+import messageRouter from "./routes/messageRoutes.js";
 
 const app = express();
 await connectDB();
@@ -23,6 +26,12 @@ app.use("/api/inngest",
 
 //UserRouter added from routes  
 app.use('/api/user',userRouter)
+//PostRouter added from routes
+app.use('/api/post',postRouter)
+//story router added from routes
+app.use('/api/story',storyRouter)
+//message router added from routes
+app.use('/api/message',messageRouter)
 
 // Test route
 app.get("/", (req, res) => {

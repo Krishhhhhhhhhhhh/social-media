@@ -1,7 +1,9 @@
 
 
 import imageKit from "../configs/imageKit.js"
+import { inngest } from "../inngest/index.js"
 import Connections from "../Models/Connections.js"
+import Post from "../Models/Post.js"
 import { User } from "../Models/User.js"
 import fs from 'fs'
 //get user data using userId
@@ -65,7 +67,7 @@ export const updateUserData=async(req,res)=>{
                         format:'webp'
                     },
                     {
-                        width:'512'
+                        width:'1280'
                     }
                 ]
             })
@@ -203,9 +205,14 @@ export const sendConnectionRequest=async(req,res)=>{
             })
             if(!connection)
             {
-                await Connections.create({
+                const newConnection=await Connections.create({
                     from_user_id:userId,
                     to_user_id:id
+                })
+
+                await inngest.send({
+                    name:'app/connection-request',
+                    data:{connectionId:newConnection._id}
                 })
                 return res.json({success:true,message:'Connection request sent!'})
             }
@@ -269,5 +276,21 @@ export const acceptConnectionRequest=async(req,res)=>{
         console.log(error);
         res.json({success:false,message:error.message})
 
+    }
+}
+//Get User Profiles
+export const getUserProfiles=async(req,res)=>{
+    try{
+        const {profileId} =req.body;
+        const profile=await User.findById(profileId)
+        if(!profile)
+        {
+            return res.json({success:false,message:"profile not found"});
+        }
+        const posts=await Post.find({user:profileId}).populate('user')
+        res.json({success:true,profile,posts})
+    }catch(error){
+        console.log(error);
+        res.json({success:false,message:error.message})
     }
 }
