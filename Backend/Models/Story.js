@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-const storySchema=new Mongoose.Schema({
+const storySchema=new mongoose.Schema({
     user:{type:String,
         ref:'User',
         required:true},
@@ -11,7 +11,7 @@ const storySchema=new Mongoose.Schema({
     views_count:[{type:String,ref:'User'}],
     background_color:{type:String}
 
-},{timeStamps:true,minimize:false})
+},{timestamps:true,minimize:false})
 
 const Story=mongoose.model('Story',storySchema)
 export default Story;
