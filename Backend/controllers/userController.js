@@ -110,7 +110,7 @@ export const updateUserData=async(req,res)=>{
 //Find Users using username,email,location,name 
 export const discoverUsers=async(req,res)=>{
     try{
-        const {userId}=req.auth()
+        const {userId}=req.auth
         const {input}=req.body;
         const  allUsers=await User.find(
             {
@@ -170,7 +170,7 @@ export const unfollowUser=async(req,res)=>{
         await user.save()
 
         const toUser=await User.findById(id)
-         toUser.followers=toUser.followers.filter(follower=>follower.toString()!==id);
+         toUser.followers=toUser.followers.filter(follower=>follower.toString()!==userId);
         await toUser.save()
         res.json({success:true,message:'You are no longer following this user'})
          
@@ -253,7 +253,7 @@ export const acceptConnectionRequest=async(req,res)=>{
     try{
         const {userId}=req.auth()
         const {id}=req.body;
-        const connection=Connections.findOne({from_user_id:id,to_user_id:userId})
+        const connection=await Connections.findOne({from_user_id:id,to_user_id:userId})
 
         if(!connection)
         {

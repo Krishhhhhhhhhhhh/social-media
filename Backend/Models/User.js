@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
         unique:true,},
+    full_name: {  
+        type: String,
+        default: ''
+    },
     bio:{
         type:String,
         default:"Hey there! I am using Social Media App."
@@ -32,6 +36,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         ref:'User'
 
+    }],
+     following: [{  // ✅ Added missing following field
+        type: String,
+        ref: 'User'
     }],
     
     connections:[{
