@@ -14,10 +14,10 @@ const UserProfileInfo = ({user,posts,profileId,setShowEdit}) => {
                 <div className='flex flex-col md:flex-row items-start justify-between'>
                     <div>
                         <div className='flex items-center gap-3'>
-                            <h1 className='text-2xl font-bold text-gray-900'>{user.full_name}</h1>
+                            <h1 className='text-2xl font-bold text-gray-900'>{user?.full_name || 'User'}</h1>
                             <Verified className='w-6 h-6 text-blue-500'/>
                         </div>
-                        <p className='text-gray-600'>{user.username ?`@${user.username}`:'Add a Username'}</p>
+                        <p className='text-gray-600'>{user?.username ? `@${user.username}` : 'Add a Username'}</p>
 
                     </div>
                   {/* When user open profile page we will give edit button  */}
@@ -50,15 +50,15 @@ const UserProfileInfo = ({user,posts,profileId,setShowEdit}) => {
                 </div>
                 <div className='flex items-center gap-6 mt-6 border-t border-gray-200 pt-4'>
                     <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{posts.length}</span>
+                        <span className='sm:text-xl font-bold text-gray-900'>{posts?.length || 0}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Posts</span>
                     </div>
                     <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.followers.length}</span>
+                        <span className='sm:text-xl font-bold text-gray-900'>{user?.followers?.length || 0}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Followers</span>
                     </div>
                     <div>
-                        <span className='sm:text-xl font-bold text-gray-900'>{user.following.length}</span>
+                        <span className='sm:text-xl font-bold text-gray-900'>{user?.following?.length || 0}</span>
                         <span className='text-xs sm:text-sm text-gray-500 ml-1'>Following</span>
                     </div>
 

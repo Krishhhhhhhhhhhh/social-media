@@ -11,13 +11,16 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.43.1",
+    "@reduxjs/toolkit": "^2.9.2",
     "@tailwindcss/vite": "^4.1.11",
+    "axios": "^1.13.1",
     "inngest": "^3.42.1",
     "lucide-react": "^0.541.0",
     "moment": "^2.30.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hot-toast": "^2.6.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.3",
     "tailwindcss": "^4.1.11"
   },

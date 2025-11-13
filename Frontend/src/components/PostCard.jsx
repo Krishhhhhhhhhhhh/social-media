@@ -3,12 +3,13 @@ import moment from 'moment'
 import { BadgeCheck, Heart, MessageCircle, Share2 } from 'lucide-react'
 import { dummyUserData } from '../assets/assets/assets';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const PostCard = ({ post }) => {
   // Split the content into words (keep spaces so formatting isn't broken)
   const words = post.content.split(/(\s+)/);
   const [likes, setLikes] = useState(post.likes_count); // array
-const currentUser = dummyUserData;
+const currentUser = useSelector((state)=>state.user.value)
 
 const handleLike = () => {
   if (likes.includes(currentUser._id)) {

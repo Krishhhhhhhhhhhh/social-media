@@ -1,9 +1,14 @@
 import React,{useState} from 'react'
 import { dummyUserData } from '../assets/assets/assets'
 import { Pencil } from 'lucide-react';
+import { useDispatch, useDispatch, useSelector } from 'react-redux';
+import { updateUser } from '../features/user/userSlice';
+import { useAuth } from '@clerk/clerk-react';
 
 const ProfileModel = ({setShowEdit}) => {
-    const user=dummyUserData;
+    const dispatch=useDispatch();
+    const {getToken}=useAuth()
+    const user=useSelector((state)=>state.user.value);
     const [editForm,setEditForm]=useState({
         username:user.username,
         bio:user.bio,
@@ -14,6 +19,18 @@ const ProfileModel = ({setShowEdit}) => {
     })
     const handleSaveProfile=async(e)=>{
         e.preventDefault();
+        try {
+
+            const userData=new FormData();
+            const {full_name,username,bio,}
+
+
+            const token=await getToken()
+         dispatch(updateUser({userData,token}))
+
+        } catch (error) {
+            
+        }
     }
 
   return (
