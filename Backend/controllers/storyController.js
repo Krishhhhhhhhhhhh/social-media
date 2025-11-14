@@ -2,7 +2,7 @@ import fs from "fs";
 import imageKit from "../configs/imageKit.js";
 import Story from "../Models/Story.js";
 import { User } from "../Models/User.js";
-import { Inngest } from "inngest";
+import { inngest } from "../inngest/index.js";
 
 //Add User Story
 export const addUserStory=async(req,res)=>{
@@ -30,16 +30,22 @@ export const addUserStory=async(req,res)=>{
             background_color
         })
         //Schedule Story deletion after 24hrs
-        await Inngest.send({
-            name:'app/story.delete',
-            data:{storyId:story._id}
-        })
+        // send an event to the inngest client (use exported instance)
+        try{
+            await inngest.send({
+                name:'app/story.delete',
+                data:{storyId:story._id}
+            })
+        }catch(e){
+            // log but don't fail story creation if the event fails
+            console.error('Failed to schedule story deletion event:', e);
+        }
         res.json({success:true})
     }
     catch(error)
     {
         console.log(error);
-        res.json({success:false,message:error,message})
+        res.status(500).json({success:false,message: error?.message || String(error)})
     }
 }
 

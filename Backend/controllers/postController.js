@@ -77,25 +77,28 @@ export const getFeedPosts=async(req,res)=>{
 export const likePost=async(req,res)=>{
     try{
         const {userId}=req.auth();
-        const {postId}=req.body();
+        const {postId}=req.body;
+        if(!postId) return res.status(400).json({success:false,message:'postId is required'});
         const post=await Post.findById(postId)
+        if(!post) return res.status(404).json({success:false,message:'Post not found'});
 
-        if(post.likes_count.includes(userId))
+        const alreadyLiked = post.likes_count.includes(userId);
+        if(alreadyLiked)
         {
             post.likes_count=post.likes_count.filter(user=>user!==userId)
             await post.save()
-            res.json({success:true,message:'Post Unliked'});
+            return res.json({success:true,message:'Post Unliked',likes:post.likes_count});
 
         }else
         {
             post.likes_count.push(userId)
             await post.save()
-            res.json({success:true,message:'Post liked'})
+            return res.json({success:true,message:'Post liked',likes:post.likes_count});
         }
        
     }
     catch(error){
          console.log(error);
-        res.json({success:false,message:error.message});
+        res.status(500).json({success:false,message:error.message});
     }
 }

@@ -4,13 +4,30 @@ import { Plus, Video } from 'lucide-react'
 import moment from 'moment'
 import StoryModal from './StoryModal'
 import StoryViewer from './StoryViewer'
+import { useAuth } from '@clerk/clerk-react'
+import api from '../api/axios'
 
 const StoriesBar = () => {
+    const {getToken}=useAuth()
     const [stories, setStories] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [viewStory, setViewStory] = useState(null)
     const fetchStories = async () => {
-        setStories(dummyStoriesData)
+       try {
+        const token=await getToken()
+        const {data}=await api.get('/api/story/get',{
+            headers:{Authorization:`Bearer ${token}`}
+        })
+        if(data.success)
+        {
+            setStories(data.stories)
+        }
+        else{
+            toast(data.message)
+        }
+       } catch (error) {
+            toast.error(error.message)
+       }
     }
     useEffect(() => {
         fetchStories()
@@ -50,16 +67,16 @@ const StoriesBar = () => {
                             <p className='text-white absolute bottom-1
                         right-2 z-10 text-xs'>{moment(story.createdAt).fromNow()}</p>
                         {
-                            story.media_type!=' text' && (
+                            story.media_type!=' text' && story.media_url && (
                                 <div className='absolute inset-0 z-1 rounded-lg
                                 bg-black overflow-hidden'>
                                      {
-                            stories.media_type === "image"?
-                            <img src={story.media_url} alt="" className='
+                            story.media_type === "image"?
+                            <img src={story.media_url || undefined} alt="" className='
                             h-full w-full object-cover hover:scale-110 transition
                             duration-500 opacity-70 hover:opacity-80'  />
                             :
-                            <video src={story.media_url} className='h-full w-full object-cover hover:scale-110 transition
+                            <video src={story.media_url || undefined} className='h-full w-full object-cover hover:scale-110 transition
                             duration-500 opacity-70 hover-capacity-80'/>
                         }
 
