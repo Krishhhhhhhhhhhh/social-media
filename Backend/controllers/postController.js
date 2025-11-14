@@ -16,8 +16,8 @@ export const addPost=async(req,res)=>{
                 images.map(async(image)=>{
                     const fileBuffer=fs.readFileSync(image.path)
                     const response=await imageKit.upload({
-                file:buffer,
-                fileName:profile.originalname,
+                file:fileBuffer,
+                fileName:image.originalname,
                 folder:"posts",
 
             })
@@ -65,7 +65,7 @@ export const getFeedPosts=async(req,res)=>{
         const posts=await Post.find({user:{$in: userIds}}).populate('user').sort({
             createdAt:-1
         });
-        res.json({success:true})
+        res.json({success:true,posts})
 
     }
     catch(error){

@@ -43,15 +43,20 @@ const Createpost = () => {
 
           if(data.success)
           {
-            navigate('/')
+            toast.success('Post published successfully!')
+            setContent('')
+            setImages([])
+            setTimeout(() => {
+              navigate('/')
+            }, 500)
           }else
           {
             console.log(data.message)
-            throw new Error(data.message)
+            toast.error(data.message)
           }
       } catch (error) {
-        console.log(error.message)
-        throw new Error(data.message)
+        console.error('Error publishing post:', error)
+        toast.error(error.message || 'Failed to publish post')
       }
       setLoading(false)
       
