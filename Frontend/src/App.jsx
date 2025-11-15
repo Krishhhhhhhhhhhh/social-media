@@ -13,6 +13,7 @@ import { useUser, useAuth } from '@clerk/clerk-react'
 import { Toaster } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchUser } from './features/user/userSlice'
+import { fetchConnections } from './features/connections/connectionsSlice'
 
 const App = () => {
   const { user } = useUser()
@@ -26,6 +27,8 @@ const App = () => {
         try {
           const token = await getToken()
           await dispatch(fetchUser(token)).unwrap()
+          await dispatch(fetchConnections(token)).unwrap()
+
         } catch (err) {
           console.error('Failed to fetch user data:', err)
         }
