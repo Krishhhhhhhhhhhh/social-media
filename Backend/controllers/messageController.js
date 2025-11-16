@@ -68,6 +68,11 @@ export const sendMessage=async(req,res)=>{
         if(connections[to_user_id])
         {
             connections[to_user_id].write(`data: ${JSON.stringify(messageWithUserData)}\n\n`)
+            console.log('✓ Message sent to user via SSE:', to_user_id)
+        }
+        else
+        {
+            console.log('⚠ User not connected (offline):', to_user_id)
         }
     }catch(error){
         console.log(error);
@@ -86,13 +91,13 @@ export const getChatMessages=async(req,res)=>{
                 {from_user_id:userId,to_user_id},
                 {from_user_id:to_user_id,to_user_id:userId},
             ]
-        }).sort({createdId:-1})
+        }).sort({createdAt:-1}).populate('from_user_id')
         //Mark message as seen
         await Message.updateMany({from_user_id:to_user_id,to_user_id:userId},
             {seen:true}
         )
 
-            res.json({success:false,message:messages});
+            res.json({success:true,messages});
     }
     catch(error)
     {
@@ -108,6 +113,6 @@ export const getUserRecentMessages=async(req,res)=>{
     
     catch(error)
     {
-           res.json({success:false,message:messages});
+           res.json({success:false,message:error.message});
     }
 }

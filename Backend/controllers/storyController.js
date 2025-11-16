@@ -56,9 +56,11 @@ export const getStories=async(req,res)=>{
         const user=await User.findById(userId);
         //User connections and followings
         const userIds=[userId,...user.connections,...user.following]
-
+        // Only return stories created within the last 24 hours
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
         const stories=await Story.find({
-            user:{$in:userIds}
+            user:{$in:userIds},
+            createdAt: { $gt: since }
         }).populate('user').sort({createdAt:-1});
         
         res.json({success:true,stories});

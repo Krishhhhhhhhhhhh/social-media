@@ -133,54 +133,80 @@ export const discoverUsers=async(req,res)=>{
 }
 
 //Follow User
-export const followUser=async(req,res)=>{
-    try{
-        const {userId}=req.auth()
-        const {id}=req.body;
-        const user=await User.findById(userId)
-
-        if(user.following.includes(id))
-        {
-            return res.json({success:false,meesage:'You are already following the user'})
+export const followUser = async (req, res) => {
+    try {
+        const { userId } = req.auth()
+        const { id } = req.body;
+        
+        console.log('Follow request - From:', userId, 'To:', id)
+        
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' })
         }
+
+        // Check if already following
+        if (user.following.some(followingId => followingId.toString() === id)) {
+            return res.json({ success: false, message: 'You are already following the user' })
+        }
+        
+        // Add to current user's following list
         user.following.push(id);
         await user.save()
 
-        const toUser=await User.findById(id)
+        // Add to target user's followers list
+        const toUser = await User.findById(id)
+        if (!toUser) {
+            return res.json({ success: false, message: 'Target user not found' })
+        }
+        
         toUser.followers.push(userId)
         await toUser.save()
-        res.json({success:true,message:'Now you are following this user'})
-         
         
-    }catch(error){
-        console.log(error);
-        res.json({success:false,message:error.message})
+        console.log('✓ Follow successful')
+        res.json({ success: true, message: 'Now you are following this user' })
 
+    } catch (error) {
+        console.log('Follow error:', error);
+        res.json({ success: false, message: error.message })
     }
 }
 
 //Unfollow User
-export const unfollowUser=async(req,res)=>{
-    try{
-        const {userId}=req.auth()
-        const {id}=req.body;
-        const user=await User.findById(userId)
+export const unfollowUser = async (req, res) => {
+    try {
+        const { userId } = req.auth()
+        const { id } = req.body;
+        
+        console.log('Unfollow request - From:', userId, 'To:', id)
+        
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' })
+        }
 
-        user.following=user.following.filter(user=>user!==id);
+        // Remove from current user's following list
+        user.following = user.following.filter(followingId => followingId.toString() !== id)
         await user.save()
 
-        const toUser=await User.findById(id)
-         toUser.followers=toUser.followers.filter(follower=>follower.toString()!==userId);
+        // Remove from target user's followers list
+        const toUser = await User.findById(id)
+        if (!toUser) {
+            return res.json({ success: false, message: 'Target user not found' })
+        }
+        
+        toUser.followers = toUser.followers.filter(follower => follower.toString() !== userId)
         await toUser.save()
-        res.json({success:true,message:'You are no longer following this user'})
-         
-         
-    }catch(error){
-        console.log(error);
-        res.json({success:false,message:error.message})
+        
+        console.log('✓ Unfollow successful')
+        res.json({ success: true, message: 'You are no longer following this user' })
 
+    } catch (error) {
+        console.log('Unfollow error:', error);
+        res.json({ success: false, message: error.message })
     }
 }
+
 //Send Connection request
 export const sendConnectionRequest=async(req,res)=>{
     try{
@@ -230,22 +256,68 @@ export const sendConnectionRequest=async(req,res)=>{
 }
 
 //Get user connection
-export const getUserConnections=async(req,res)=>{
-    try{
-        const {userId}=req.auth()
-        const user=await User.findById(userId).populate('connections followers following')
-
-        const connections=user.connections
-        const followers=user.followers
-        const following=user.following
-        const pendingConnections=(await Connections.find({to_user_id:userId,status:'Pending'}).populate('from_user_id')).map(connection=>connection.from_user_id)
-        res.json({success:true,connections,followers,following,pendingConnections})
+export const getUserConnections = async (req, res) => {
+    try {
+        const { userId } = req.auth()
         
-    }
-    catch(error){
-        console.log(error);
-        res.json({success:false,message:error.message})
+        console.log('Fetching connections for user:', userId)
+        
+        // First, get user WITHOUT populate to see raw data
+        const rawUser = await User.findById(userId)
+        console.log('Raw user data:', {
+            followers: rawUser?.followers || [],
+            following: rawUser?.following || [],
+            connections: rawUser?.connections || []
+        })
+        
+        // Now get with populate
+        const user = await User.findById(userId)
+            .populate('connections', 'full_name username profile_picture bio _id')
+            .populate('followers', 'full_name username profile_picture bio _id')
+            .populate('following', 'full_name username profile_picture bio _id')
 
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' })
+        }
+
+        console.log('Populated user data:', {
+            followers: user.followers?.length || 0,
+            following: user.following?.length || 0,
+            connections: user.connections?.length || 0
+        })
+
+        const connections = user.connections || []
+        const followers = user.followers || []
+        const following = user.following || []
+        
+        // Get pending connection requests
+        const pendingConnectionsData = await Connections.find({ 
+            to_user_id: userId, 
+            status: 'Pending' 
+        }).populate('from_user_id', 'full_name username profile_picture bio _id')
+        
+        const pendingConnections = pendingConnectionsData
+            .map(connection => connection.from_user_id)
+            .filter(Boolean)
+        
+        console.log('✓ Connections fetched:', {
+            connections: connections.length,
+            followers: followers.length,
+            following: following.length,
+            pending: pendingConnections.length
+        })
+        
+        res.json({ 
+            success: true, 
+            connections, 
+            followers, 
+            following, 
+            pendingConnections 
+        })
+
+    } catch (error) {
+        console.log('getUserConnections error:', error);
+        res.json({ success: false, message: error.message })
     }
 }
 //Accept Connection Request 

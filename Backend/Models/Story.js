@@ -14,4 +14,7 @@ const storySchema=new mongoose.Schema({
 },{timestamps:true,minimize:false})
 
 const Story=mongoose.model('Story',storySchema)
+// TTL index: automatically remove stories 24 hours after creation
+storySchema.index({ createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 })
+
 export default Story;

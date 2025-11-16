@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import api from '../../api/axios'     // ✅ Import your axios instance
-import { toast } from 'react-hot-toast' // ✅ Import toast
+import api from '../../api/axios'
+import { toast } from 'react-hot-toast'
 
 const initialState = {
   value: null,
@@ -48,7 +48,48 @@ export const updateUser = createAsyncThunk(
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    // ✅ Manual reducers to update followers/following immediately
+    updateUserFollowers: (state, action) => {
+      if (state.value) {
+        const { followers, following } = action.payload
+        if (followers) state.value.followers = followers
+        if (following) state.value.following = following
+      }
+    },
+    addFollower: (state, action) => {
+      if (state.value && !state.value.followers.includes(action.payload)) {
+        state.value.followers.push(action.payload)
+      }
+    },
+    removeFollower: (state, action) => {
+      if (state.value) {
+        state.value.followers = state.value.followers.filter(
+          id => id.toString() !== action.payload.toString()
+        )
+      }
+    },
+    addFollowing: (state, action) => {
+      if (state.value && !state.value.following.includes(action.payload)) {
+        state.value.following.push(action.payload)
+        console.log('✓ Added to following in Redux:', action.payload)
+      }
+    },
+    removeFollowing: (state, action) => {
+      if (state.value) {
+        state.value.following = state.value.following.filter(
+          id => id.toString() !== action.payload.toString()
+        )
+        console.log('✓ Removed from following in Redux:', action.payload)
+      }
+    },
+    addConnection: (state, action) => {
+      if (state.value && !state.value.connections.includes(action.payload)) {
+        state.value.connections.push(action.payload)
+        console.log('✓ Added to connections in Redux:', action.payload)
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
@@ -68,5 +109,14 @@ const userSlice = createSlice({
       })
   },
 })
+
+export const { 
+  updateUserFollowers, 
+  addFollower, 
+  removeFollower, 
+  addFollowing, 
+  removeFollowing,
+  addConnection 
+} = userSlice.actions
 
 export default userSlice.reducer
