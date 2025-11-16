@@ -10,11 +10,12 @@ import Profile from './pages/Profile'
 import Createpost from './pages/Createpost'
 import Layout from './pages/Layout'
 import { useUser, useAuth } from '@clerk/clerk-react'
-import { Toaster } from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchUser } from './features/user/userSlice'
 import { fetchConnections } from './features/connections/connectionsSlice'
 import { addMessage } from './features/messages/messagesSlice'
+import Notification from './components/Notification'
 
 const App = () => {
   const { user } = useUser()
@@ -58,6 +59,9 @@ const App = () => {
           }
           else
           {
+            toast.custom((t)=>(
+              <Notification t={t} message={message}/>
+            ),{position:'bottom-right'})
             console.log('ℹ Message received but not on this chat page:', currentChatPath)
           }
         } catch (err) {

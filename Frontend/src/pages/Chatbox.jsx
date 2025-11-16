@@ -110,6 +110,7 @@ const Chatbox = () => {
     : message.from_user_id._id === user._id)
     //Log
     console.log("Message:", message.from_user_id, "User:", user._id, "isOwn:", isOwnMessage)
+    console.log("Message details:", { type: message.message_type, media_url: message.media_url, text: message.text })
 
 
               return (
@@ -124,14 +125,15 @@ const Chatbox = () => {
                       : 'bg-white text-slate-700 rounded-bl-none'
                     }`}
                   >
-                    {message.message_type === 'image' && (
+                    {message.message_type === 'image' && message.media_url && (
                       <img
                         src={message.media_url}
                         className='w-full max-w-sm rounded-lg mb-1'
                         alt=""
+                        onError={(e) => console.error('Image load error:', e.target.src)}
                       />
                     )}
-                    <p>{message.text}</p>
+                    {message.text && <p>{message.text}</p>}
                   </div>
                 </div>
               )

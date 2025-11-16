@@ -44,14 +44,14 @@ export const sendMessage=async(req,res)=>{
             const fileBuffer=fs.readFileSync(image.path);
             const response =await imageKit.upload({
                 file:fileBuffer,
-                fileName:image.originalName,
+                fileName:image.originalname,
             });
             media_url=imageKit.url({
                 path:response.filePath,
                 transformation:[
                     {quality:'auto'},
                     {format:'webp'},
-                    {width:'1280 '}
+                    {width:'1280'}
                 ]
             })
         }
