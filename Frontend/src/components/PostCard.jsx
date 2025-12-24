@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import moment from 'moment'
 import { BadgeCheck, Heart, MessageCircle, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -15,7 +15,11 @@ const PostCard = ({ post }) => {
   }
 
   const words = post.content?.split(/(\s+)/) || [];
-  const [likes, setLikes] = useState(post.likes || []);
+  const [likes, setLikes] = useState([]);
+
+useEffect(() => {
+  setLikes(post.likes_count || []);
+}, [post.likes_count]);
   const currentUser = useSelector((state) => state.user.value);
   const { getToken } = useAuth();
   const navigate = useNavigate();
