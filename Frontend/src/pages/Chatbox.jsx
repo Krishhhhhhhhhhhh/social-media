@@ -19,6 +19,7 @@ const Chatbox = () => {
   const messagesEndRef = useRef(null)
   const connections=useSelector((state)=>state.connections.connections)
   const following = useSelector((state)=>state.connections.following)
+  const loggedInUser = useSelector((state) => state.user.value)
 
   const fetchUserMessages=async()=>{
     try {
@@ -68,21 +69,9 @@ const Chatbox = () => {
     setUser(found)
   },[connections,following,userId])
 
-
    useEffect(() => {
      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-   }, [messages]) 
-  useEffect(() => {
-  if (messages.length > 0) {
-    // Assume first sender is the logged-in user
-    const firstSender =
-      typeof messages[0].from_user_id === "string"
-        ? messages[0].from_user_id
-        : messages[0].from_user_id._id
-
-    setUser({ ...dummyUserData, _id: firstSender })
-  }
-}, [messages])
+   }, [messages])
 
 
   return user && (
@@ -104,19 +93,17 @@ const Chatbox = () => {
             .slice()
             .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
             .map((message, index) => {
-              const isOwnMessage =
-  (typeof message.from_user_id === "string"
-    ? message.from_user_id === user._id
-    : message.from_user_id._id === user._id)
-    //Log
-    console.log("Message:", message.from_user_id, "User:", user._id, "isOwn:", isOwnMessage)
-    console.log("Message details:", { type: message.message_type, media_url: message.media_url, text: message.text })
-
+              const senderId = typeof message.from_user_id === "string"
+                ? message.from_user_id
+                : message.from_user_id._id
+              const isOwnMessage = senderId === loggedInUser?._id
+              console.log("Message:", senderId, "LoggedIn User:", loggedInUser?._id, "isOwn:", isOwnMessage)
+              console.log("Message details:", { type: message.message_type, media_url: message.media_url, text: message.text })
 
               return (
                 <div
                   key={message._id || index}
-                  className={`flex flex-col ${isOwnMessage ? 'items-start' : 'items-end'}`}
+                  className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}
                 >
                   <div
                     className={`p-2 text-sm max-w-sm rounded-lg shadow
